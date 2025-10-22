@@ -6,7 +6,7 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 11:45:02 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/19 22:19:12 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/21 16:38:48 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,65 +46,113 @@
 // 	return (ptr);
 // }
 
-size_t	check_gnl_init_data(t_gnl_data **s_gnl, size_t *len)
-{
-	(*len) = 0;
-	if (*s_gnl)
-		return (SUCCESS);
-	(*s_gnl) = malloc(sizeof(t_gnl_data));
-	if (!s_gnl)
-		return (MEM_FAIL);
-	(*s_gnl)->buf = NULL;
-	(*s_gnl)->idx = 0;
-	(*s_gnl)->len = 0;
-	(*s_gnl)->alloc_size = ALLOC_MIN;
-	return (SUCCESS);
-}
+// size_t	check_gnl_init_data(t_tmpbuf **s_gnl, size_t *len)
+// {
+// 	(*len) = 0;
+// 	if (*s_gnl)
+// 		return (SUCCESS);
+// 	(*s_gnl) = malloc(sizeof(t_tmpbuf));
+// 	if (!s_gnl)
+// 		return (MEM_FAIL);
+// 	(*s_gnl)->buf = NULL;
+// 	(*s_gnl)->idx = 0;
+// 	(*s_gnl)->len = 0;
+// 	(*s_gnl)->capacity = ALLOC_MIN;
+// 	return (SUCCESS);
+// }
 
-void	*ft_memcpy(void *dest, const void *src, size_t n)
+// void	*ft_memcpy(void *dest, const void *src, size_t n)
+// {
+// 	const unsigned char	*s;
+// 	unsigned char		*d;
+
+// 	if (n == 0 || (!dest && !src))
+// 		return (dest);
+// 	s = (const unsigned char *)src;
+// 	d = (unsigned char *)dest;
+// 	int i = 0;
+// 	while (n--)
+// 	{
+// 		d[i] = s[i];
+// 		i++;
+// 	}
+// 	return (dest);
+// }
+
+void	*ft_memmove(void *dest, const void *src, size_t n)
 {
 	const unsigned char	*s;
 	unsigned char		*d;
 
-	if (n == 0 || (!dest && !src))
-		return (dest);
 	s = (const unsigned char *)src;
 	d = (unsigned char *)dest;
-	int i = 0;
-	while (n--)
+	if (s == d || n == 0)
+		return (dest);
+	if (s > d)
 	{
-		d[i] = s[i];
-		i++;
+		while (n--)
+			*d++ = *s++;
+	}
+	else
+	{
+		d += n - 1;
+		s += n - 1;
+		while (n--)
+			*d-- = *s--;
 	}
 	return (dest);
 }
 
-void	cpy_next_line(const char *buffer, char *line)
+// void	*ft_memmove(void *dest, const void *src, size_t n)
+// {
+// 	const unsigned char	*s;
+// 	unsigned char		*d;
+// 	size_t				i;
+
+// 	s = (const unsigned char *)src;
+// 	d = (unsigned char *)dest;
+// 	if (!s || !d)
+// 		return (NULL);
+// 	if (s == d || n == 0)
+// 		return (dest);
+// 	if (s > d)
+// 	{
+// 		i = 0;
+// 		while (n--)
+// 		{
+// 			d[i] = s[i];
+// 			i++;
+// 		}
+// 	}
+// 		//return (ft_memcpy(dest, src, n));
+// 	else
+// 	{
+// 		// d += n - 1;
+// 		// s += n - 1;
+// 		i = n - 1;
+// 		while (n--)
+// 		{
+// 			d[i] = s[i];
+// 			//printf("addr d: %p  |  addr s: %p\n", &d[i], &s[i]);
+// 			//fflush(stdout);
+// 			i--;
+// 		}
+// 			//*d-- = *s--;
+// 	} // addr 0x4a8e04e
+// 	return (dest);
+// }
+
+size_t	count_check_next_line(char const *buffer, t_gnl_data *data)
 {
 	while (*buffer)
 	{
-		if (*buffer == '\n'|| *buffer == '\0')
+		if (*buffer == '\n')
 		{
-			*line = *buffer;
-			break ;
-		}
-		*line++ = *buffer++;
-	}
-}
-
-size_t	count_check_next_line(char const *buffer, size_t *len)
-{
-	if (!*buffer)
-		return (NL_NOT_FOUND);
-	while (1)
-	{
-		if (*buffer == '\n' || *buffer == '\0')
-		{
-			(*len)++;
+			(data->len)++;
 			return (NL_FOUND);
 		}
 		buffer++;
-		(*len)++;
+		(data->len)++;
 	}
 	return (NL_NOT_FOUND);
 }

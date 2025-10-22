@@ -6,186 +6,256 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/17 20:15:10 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/19 22:34:53 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/22 22:05:31 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-#include <string.h>
-#include <stdio.h> 
-
-
-static size_t	process_rest(t_gnl_data *s_gnl, char **line, size_t *len)
+static size_t	check_realloc(t_tmpbuf *tmp, size_t len)
 {
-	if (!(s_gnl->buf) || !(s_gnl->buf[s_gnl->idx]))
-		return (NL_NOT_FOUND);
-	if (count_check_next_line(&s_gnl->buf[s_gnl->idx], len) == NL_FOUND)
+	void	*new_buf;
+	size_t	new_capacity;
+
+	if (tmp->capacity >= len + BUFFER_SIZE)
+		return (SUCCESS);
+	new_capacity = tmp->capacity;
+	if (new_capacity == 0)
+		new_capacity = ALLOC_MIN;
+	else if (new_capacity > ALLOC_MUL_CAP)
+		new_capacity += ALLOC_ADD_SIZE;
+	else
+		new_capacity *= 2;
+	if (new_capacity < len + BUFFER_SIZE)
+		new_capacity = len + BUFFER_SIZE;
+	new_buf = malloc(new_capacity + 1);
+	if (!new_buf)
+		return (MEM_FAIL);
+	if (tmp->buf)
 	{
-		*line = malloc(*len * sizeof(char));
-		if (!*line)
+		ft_memmove(new_buf, (void *)tmp->buf, tmp->idx);
+		free(tmp->buf);
+	}
+	tmp->buf = (char *)new_buf;
+	tmp->capacity = new_capacity;
+	return (SUCCESS);
+}
+
+static size_t	reminder(char *s_buf, t_tmpbuf *tmp, t_gnl_data *data)
+{
+	if (!*s_buf)
+		return (NL_NOT_FOUND);
+	if (count_check_next_line(s_buf, data) == NL_FOUND)
+	{
+		data->line = malloc((data->len + 1) * sizeof(char));
+		if (!data->line)
 			return (MEM_FAIL);
-		ft_memcpy((void *)*line, (void *)&s_gnl->buf[s_gnl->idx], (*len - 1));
-		(*line)[*len - 1] = '\0';
-		s_gnl->idx += *len;
+		ft_memmove((void *)data->line, (void *)s_buf, data->len);
+		(data->line)[data->len] = '\0';
+		ft_memmove((void *)s_buf, (void *)(s_buf + data->len),
+			(BUFFER_SIZE - data->len) + 1);
 		return (NL_FOUND);
 	}
-	// TODO
+	tmp->idx = data->len;
+	if (tmp->capacity < data->len + 1)
+		if (check_realloc(tmp, data->len) == MEM_FAIL)
+			return (MEM_FAIL);
+	ft_memmove((void *)tmp->buf, (void *)s_buf, data->len);
 	return (NL_NOT_FOUND);
 }
 
-static char	*alloc_buffer(t_gnl_data *s_gnl)
+static void	*cleanup(char **s_buf, t_tmpbuf *tmp, t_gnl_data *data)
 {
-	size_t	alloc_size;
-
-	alloc_size = s_gnl->alloc_size;
-	if (s_gnl->alloc_size < ALLOC_MIN)
-	{
-		s_gnl->buf = malloc(ALLOC_MIN * sizeof(char));
-		s_gnl->len = ALLOC_MIN;
-	}
-	else if (s_gnl->alloc_size * 2 < ALLOC_CAP)
-	{
-		alloc_size *= 2;
-		s_gnl->buf = malloc(alloc_size * sizeof(char));
-		s_gnl->len = alloc_size;
-	}
-	else
-	{
-		s_gnl->buf = malloc(alloc_size * sizeof(char));
-		s_gnl->len = alloc_size;
-	}
-	return (s_gnl->buf);
+	if (*s_buf)
+		free(*s_buf);
+	*s_buf = NULL;
+	if (tmp->buf)
+		free(tmp->buf);
+	if (data->line)
+		free(data->line);
+	return (NULL);
 }
 
-static char	*realloc_buffer(char *tmp, t_gnl_data *s_gnl)
+static size_t	init_data(char **buf, t_tmpbuf *tmp, t_gnl_data *data)
 {
-	size_t	alloc_size;
-
-	tmp = malloc(s_gnl->alloc_size * sizeof(char));
-	if (!tmp)
-		return (MEM_FAIL);
-	alloc_size = s_gnl->alloc_size;
-	if (s_gnl->alloc_size < ALLOC_MIN)
+	if (!*buf)
 	{
-		s_gnl->buf = malloc(ALLOC_MIN * sizeof(char));
-		s_gnl->len = ALLOC_MIN;
+		*buf = malloc(BUFFER_SIZE + 1);
+		if (!*buf)
+			return (MEM_FAIL);
+		(*buf)[0] = '\0';
 	}
-	else if (s_gnl->alloc_size * 2 < ALLOC_CAP)
-	{
-		alloc_size *= 2;
-		s_gnl->buf = malloc(alloc_size * sizeof(char));
-		s_gnl->len = alloc_size;
-	}
-	else
-	{
-		s_gnl->buf = malloc(alloc_size * sizeof(char));
-		s_gnl->len = alloc_size;
-	}
-	return (s_gnl->buf);
+	data->bytes_read = 0;
+	data->total_bytes = 0;
+	data->len = 0;
+	data->line = NULL;
+	tmp->idx = 0;
+	tmp->buf = NULL;
+	tmp->capacity = 0;
+	return (SUCCESS);
 }
+
 
 char	*get_next_line(int fd)
 {
-	static t_gnl_data	*s_gnl;
-	char				*tmp;
-	char				*line;
-	size_t				bytes_read;
-	size_t				len;
+	static char		*s_buf;
+	t_tmpbuf		tmp;
+	t_gnl_data		data;
 
-	if (check_gnl_init_data(&s_gnl, &len) == MEM_FAIL)
+	if (fd == -1)
+		return (NULL);
+	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
 		return (NULL);
 
-
-	/* process rest */
-	bytes_read = process_rest(s_gnl, &line, &len);
-	if (bytes_read == MEM_FAIL)
-		return (NULL);
-	if (bytes_read == NL_FOUND)
-		return (line);
-
-
-	/* alloc */
-	free(s_gnl->buf);
-	if (!alloc_buffer(s_gnl))
-		return (NULL);
+	/* process reminder */
+	data.bytes_read = reminder(s_buf, &tmp, &data);
+	if (data.bytes_read == MEM_FAIL)
+		return (cleanup(&s_buf, &tmp, &data));
+	if (data.bytes_read == NL_FOUND)
+		return (data.line);
 
 
+	data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
+	if (data.bytes_read == -1)
+		return (cleanup(&s_buf, &tmp, &data));
 
-
-	bytes_read = read(fd, s_gnl->buf, BUFFER_SIZE);
-	while (bytes_read > 0)
+	//tmp.len += bytes_read + len;
+	data.total_bytes = tmp.idx + data.bytes_read;
+	data.len = tmp.idx;
+	while (data.bytes_read > 0)
 	{
-		s_gnl->buf[bytes_read] = '\0';
-		len = 0;
-		if (count_check_next_line((const char *)&s_gnl->buf[s_gnl->idx], &len))
+		s_buf[data.bytes_read] = '\0';
+		if (count_check_next_line((const char *)s_buf, &data) == NL_FOUND)
 		{
-			//process_line();
-			//return (line);
-			line = malloc(len * sizeof(char));
-			if (!line)
-				return (NULL);
-			ft_memcpy((void *)line, (void *)&s_gnl->buf[s_gnl->idx], len - 1);
-			line[len - 1] = '\0';
-			s_gnl->idx += len;
-			return (line);
+			if (check_realloc(&tmp, data.len) == MEM_FAIL)
+				return (cleanup(&s_buf, &tmp, &data));
+			ft_memmove((void *)&tmp.buf[tmp.idx], (void *)s_buf, data.bytes_read);
+			data.line = malloc((data.len + 1) * sizeof(char));
+			if (!data.line)
+				return (cleanup(&s_buf, &tmp, &data));
+			ft_memmove((void *)data.line, (void *)tmp.buf, data.len);
+			data.line[data.len] = '\0';
+			tmp.idx = data.len;
+			ft_memmove((void *)s_buf, (void *)&tmp.buf[tmp.idx], data.total_bytes - tmp.idx);
+			s_buf[data.total_bytes - tmp.idx] = '\0';
+			free(tmp.buf);
+			return (data.line);
 		}
 
-
-		if (s_gnl->alloc_size < bytes_read)
-			if (realloc_buffer(tmp, s_gnl) == MEM_FAIL)
-				return (NULL);
-
-
-		bytes_read = read(fd, s_gnl->buf, BUFFER_SIZE);
+		if (check_realloc(&tmp, data.len) == MEM_FAIL)
+			return (cleanup(&s_buf, &tmp, &data));
+		ft_memmove((void *)&tmp.buf[tmp.idx], (void *)s_buf, data.bytes_read);
+		tmp.idx = data.len;
+		data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
+		data.total_bytes += data.bytes_read;
 	}
-	// if (bytes_read == 0) /* EOF */
-	// 	return (NULL);
-
-
-	count_check_next_line((const char *)&s_gnl->buf[s_gnl->idx], &len);
-	return (strdup(s_gnl->buf));
+	if (data.bytes_read == 0 && data.len > 0)
+	{
+		data.line = malloc((data.len + 1) * sizeof(char));
+		if (!(data.line))
+			return (cleanup(&s_buf, &tmp, &data));
+		ft_memmove((void *)data.line, (void *)tmp.buf, data.len);
+		data.line[data.len] = '\0';
+		free(tmp.buf);
+		free(s_buf);
+		s_buf = NULL;
+		return (data.line);
+	}
+	return (cleanup(&s_buf, &tmp, &data));
 }
 
-
-
-// ---------------------------------------------------- //
-// --------------------- CONCEPTS --------------------- //
-// ---------------------------------------------------- //
-
-
-// char	*get_next_single_heap_buffer(int fd)
+// char	*get_next_line(int fd)
 // {
-// 	static char		*s_buffer;
-// 	size_t			bytes_read;
+// 	static char		*s_buf;
+// 	t_tmpbuf		tmp;
+// 	t_gnl_data		data;
 
-// 	if (s_buffer && *s_buffer)
-// 	{
-// 		// process the rest
-// 	}
-// 	s_buffer = malloc(BUFFER_SIZE * sizeof(char));
-// 	if (!s_buffer)
+// 	if (fd < 0 || BUFFER_SIZE <= 0)
 // 		return (NULL);
-// 	bytes_read = read(fd, s_buffer, BUFFER_SIZE - 1);
-// 	while (bytes_read > 0)
+
+// 	// Initialize buffers
+// 	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
+// 		return (NULL);
+
+// 	// Process existing buffer first
+// 	/* process reminder */
+// 	if (process_reminder(s_buf, &tmp, &data) == NL_FOUND)
+// 		return (data.line);
+
+// 	// Read loop
+// 	while ((data.bytes_read = read(fd, s_buf, BUFFER_SIZE)) > 0)
 // 	{
-// 		s_buffer[bytes_read] = '\0';
-// 		bytes_read = read(fd, s_buffer, BUFFER_SIZE - 1);
+// 		s_buf[data.bytes_read] = '\0';
+// 		if (process_chunk(s_buf, &tmp, &data) == NL_FOUND)
+// 			return (data.line);
 // 	}
-// 	return (ft_strdup(s_buffer));
+
+// 	// Handle end of file
+// 	if (data.bytes_read == 0 && tmp.idx > 0)
+// 		return (extract_final_line(&tmp, &data));
+
+// 	return (cleanup(&s_buf, &tmp, &data));
 // }
 
-// char	*get_next_line_simple(int fd)
+
+// char	*get_next_line(int fd)
 // {
-// 	static char	buffer[BUFFER_SIZE];
-// 	size_t		bytes_read;
+// 	static char		*s_buf;
+// 	t_tmpbuf		tmp;
+// 	t_gnl_data		data;
 
-// 	bytes_read = read(fd, buffer, BUFFER_SIZE - 1);
-// 	while (bytes_read > 0)
+// 	if (fd < 0 || BUFFER_SIZE <= 0)
+// 		return (NULL);
+// 	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
+// 		return (NULL);
+// 	data.bytes_read = reminder(s_buf, &tmp, &data);
+// 	if (data.bytes_read == MEM_FAIL)
+// 		return (cleanup(&s_buf, &tmp, &data));
+// 	if (data.bytes_read == NL_FOUND)
+// 		return (data.line);
+// 	data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
+// 	if (data.bytes_read == -1)
+// 		return (cleanup(&s_buf, &tmp, &data));
+// 	data.total_bytes = tmp.idx + data.bytes_read;
+// 	data.len = tmp.idx;
+// 	while (data.bytes_read > 0)
 // 	{
-// 		buffer[bytes_read] = '\0';
-// 		bytes_read = read(fd, buffer, BUFFER_SIZE - 1);
+// 		s_buf[data.bytes_read] = '\0';
+// 		if (process_chunk(s_buf, &tmp, &data) == NL_FOUND)
+// 			return (data.line);
 // 	}
+// 	if (data.bytes_read == 0 && tmp.idx > 0)
+// 		return (extract_final_line(&tmp, &data));
+// 	return (cleanup(&s_buf, &tmp, &data));
+// }
 
-// 	return (ft_strdup(buffer));
+// char	*get_next_line(int fd)
+// {
+// 	static char		*s_buf;
+// 	t_tmpbuf		tmp;
+// 	t_gnl_data		data;
+// 	size_t			ret_code;
+
+// 	if (fd < 0 || BUFFER_SIZE <= 0)
+// 		return (NULL);
+// 	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
+// 		return (NULL);
+// 	data.bytes_read = reminder(s_buf, &tmp, &data);
+// 	if (data.bytes_read == MEM_FAIL)
+// 		return (cleanup(&s_buf, &tmp, &data));
+// 	if (data.bytes_read == NL_FOUND)
+// 		return (data.line);
+// 	data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
+// 	if (data.bytes_read == -1)
+// 		return (cleanup(&s_buf, &tmp, &data));
+// 	data.total_bytes = tmp.idx + data.bytes_read;
+// 	data.len = tmp.idx;
+// 	ret_code = process_loop();
+// 	if (ret_code == MEM_FAIL)
+// 		return (cleanup(&s_buf, &tmp, &data));
+// 	else if (ret_code == NL_FOUND)
+// 		return (data.line);
+// 	if (data.bytes_read == 0 && tmp.idx > 0)
+// 		return (extract_final_line(&tmp, &data));
+// 	return (cleanup(&s_buf, &tmp, &data));
 // }
