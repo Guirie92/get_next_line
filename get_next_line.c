@@ -6,7 +6,7 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/17 20:15:10 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/22 22:05:31 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/23 11:19:37 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,98 +164,98 @@ char	*get_next_line(int fd)
 	return (cleanup(&s_buf, &tmp, &data));
 }
 
-// char	*get_next_line(int fd)
-// {
-// 	static char		*s_buf;
-// 	t_tmpbuf		tmp;
-// 	t_gnl_data		data;
+char	*get_next_line(int fd)
+{
+	static char		*s_buf;
+	t_tmpbuf		tmp;
+	t_gnl_data		data;
 
-// 	if (fd < 0 || BUFFER_SIZE <= 0)
-// 		return (NULL);
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 
-// 	// Initialize buffers
-// 	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
-// 		return (NULL);
+	// Initialize buffers
+	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
+		return (NULL);
 
-// 	// Process existing buffer first
-// 	/* process reminder */
-// 	if (process_reminder(s_buf, &tmp, &data) == NL_FOUND)
-// 		return (data.line);
+	// Process existing buffer first
+	/* process reminder */
+	if (process_reminder(s_buf, &tmp, &data) == NL_FOUND)
+		return (data.line);
 
-// 	// Read loop
-// 	while ((data.bytes_read = read(fd, s_buf, BUFFER_SIZE)) > 0)
-// 	{
-// 		s_buf[data.bytes_read] = '\0';
-// 		if (process_chunk(s_buf, &tmp, &data) == NL_FOUND)
-// 			return (data.line);
-// 	}
+	// Read loop
+	while ((data.bytes_read = read(fd, s_buf, BUFFER_SIZE)) > 0)
+	{
+		s_buf[data.bytes_read] = '\0';
+		if (process_chunk(s_buf, &tmp, &data) == NL_FOUND)
+			return (data.line);
+	}
 
-// 	// Handle end of file
-// 	if (data.bytes_read == 0 && tmp.idx > 0)
-// 		return (extract_final_line(&tmp, &data));
+	// Handle end of file
+	if (data.bytes_read == 0 && tmp.idx > 0)
+		return (extract_final_line(&tmp, &data));
 
-// 	return (cleanup(&s_buf, &tmp, &data));
-// }
+	return (cleanup(&s_buf, &tmp, &data));
+}
 
 
-// char	*get_next_line(int fd)
-// {
-// 	static char		*s_buf;
-// 	t_tmpbuf		tmp;
-// 	t_gnl_data		data;
+char	*get_next_line(int fd)
+{
+	static char		*s_buf;
+	t_tmpbuf		tmp;
+	t_gnl_data		data;
 
-// 	if (fd < 0 || BUFFER_SIZE <= 0)
-// 		return (NULL);
-// 	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
-// 		return (NULL);
-// 	data.bytes_read = reminder(s_buf, &tmp, &data);
-// 	if (data.bytes_read == MEM_FAIL)
-// 		return (cleanup(&s_buf, &tmp, &data));
-// 	if (data.bytes_read == NL_FOUND)
-// 		return (data.line);
-// 	data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
-// 	if (data.bytes_read == -1)
-// 		return (cleanup(&s_buf, &tmp, &data));
-// 	data.total_bytes = tmp.idx + data.bytes_read;
-// 	data.len = tmp.idx;
-// 	while (data.bytes_read > 0)
-// 	{
-// 		s_buf[data.bytes_read] = '\0';
-// 		if (process_chunk(s_buf, &tmp, &data) == NL_FOUND)
-// 			return (data.line);
-// 	}
-// 	if (data.bytes_read == 0 && tmp.idx > 0)
-// 		return (extract_final_line(&tmp, &data));
-// 	return (cleanup(&s_buf, &tmp, &data));
-// }
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
+		return (NULL);
+	data.bytes_read = reminder(s_buf, &tmp, &data);
+	if (data.bytes_read == MEM_FAIL)
+		return (cleanup(&s_buf, &tmp, &data));
+	if (data.bytes_read == NL_FOUND)
+		return (data.line);
+	data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
+	if (data.bytes_read == -1)
+		return (cleanup(&s_buf, &tmp, &data));
+	data.total_bytes = tmp.idx + data.bytes_read;
+	data.len = tmp.idx;
+	while (data.bytes_read > 0)
+	{
+		s_buf[data.bytes_read] = '\0';
+		if (process_chunk(s_buf, &tmp, &data) == NL_FOUND)
+			return (data.line);
+	}
+	if (data.bytes_read == 0 && tmp.idx > 0)
+		return (extract_final_line(&tmp, &data));
+	return (cleanup(&s_buf, &tmp, &data));
+}
 
-// char	*get_next_line(int fd)
-// {
-// 	static char		*s_buf;
-// 	t_tmpbuf		tmp;
-// 	t_gnl_data		data;
-// 	size_t			ret_code;
+char	*get_next_line(int fd)
+{
+	static char		*s_buf;
+	t_tmpbuf		tmp;
+	t_gnl_data		data;
+	size_t			ret_code;
 
-// 	if (fd < 0 || BUFFER_SIZE <= 0)
-// 		return (NULL);
-// 	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
-// 		return (NULL);
-// 	data.bytes_read = reminder(s_buf, &tmp, &data);
-// 	if (data.bytes_read == MEM_FAIL)
-// 		return (cleanup(&s_buf, &tmp, &data));
-// 	if (data.bytes_read == NL_FOUND)
-// 		return (data.line);
-// 	data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
-// 	if (data.bytes_read == -1)
-// 		return (cleanup(&s_buf, &tmp, &data));
-// 	data.total_bytes = tmp.idx + data.bytes_read;
-// 	data.len = tmp.idx;
-// 	ret_code = process_loop();
-// 	if (ret_code == MEM_FAIL)
-// 		return (cleanup(&s_buf, &tmp, &data));
-// 	else if (ret_code == NL_FOUND)
-// 		return (data.line);
-// 	if (data.bytes_read == 0 && tmp.idx > 0)
-// 		return (extract_final_line(&tmp, &data));
-// 	return (cleanup(&s_buf, &tmp, &data));
-// }
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	if (init_data(&s_buf, &tmp, &data) == MEM_FAIL)
+		return (NULL);
+	data.bytes_read = reminder(s_buf, &tmp, &data);
+	if (data.bytes_read == MEM_FAIL)
+		return (cleanup(&s_buf, &tmp, &data));
+	if (data.bytes_read == NL_FOUND)
+		return (data.line);
+	data.bytes_read = read(fd, s_buf, BUFFER_SIZE);
+	if (data.bytes_read == -1)
+		return (cleanup(&s_buf, &tmp, &data));
+	data.total_bytes = tmp.idx + data.bytes_read;
+	data.len = tmp.idx;
+	ret_code = process_loop();
+	if (ret_code == MEM_FAIL)
+		return (cleanup(&s_buf, &tmp, &data));
+	else if (ret_code == NL_FOUND)
+		return (data.line);
+	if (data.bytes_read == 0 && tmp.idx > 0)
+		return (extract_final_line(&tmp, &data));
+	return (cleanup(&s_buf, &tmp, &data));
+}
