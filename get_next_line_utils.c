@@ -6,7 +6,7 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 11:45:02 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/21 16:38:48 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/23 15:19:35 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,4 +155,35 @@ size_t	count_check_next_line(char const *buffer, t_gnl_data *data)
 		(data->len)++;
 	}
 	return (NL_NOT_FOUND);
+}
+
+void	*cleanup(char **s_buf, t_tmpbuf *tmp, t_gnl_data *data)
+{
+	if (*s_buf)
+		free(*s_buf);
+	*s_buf = NULL;
+	if (tmp->buf)
+		free(tmp->buf);
+	if (data->line)
+		free(data->line);
+	return (NULL);
+}
+
+size_t	init_data(char **buf, t_tmpbuf *tmp, t_gnl_data *data)
+{
+	if (!*buf)
+	{
+		*buf = malloc(BUFFER_SIZE + 1);
+		if (!*buf)
+			return (MEM_FAIL);
+		(*buf)[0] = '\0';
+	}
+	data->bytes_read = 0;
+	data->total_bytes = 0;
+	data->len = 0;
+	data->line = NULL;
+	tmp->idx = 0;
+	tmp->buf = NULL;
+	tmp->capacity = 0;
+	return (SUCCESS);
 }
