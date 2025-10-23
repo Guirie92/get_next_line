@@ -6,7 +6,7 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 11:45:02 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/23 22:21:09 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/24 00:14:22 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	*ft_memmove(void *dest, const void *src, size_t n)
 	return (dest);
 }
 
-size_t	count_check_nl(char const *buffer, t_gnl_data *data)
+int	count_check_nl(char const *buffer, t_gnl_data *data)
 {
 	while (*buffer)
 	{
@@ -51,7 +51,7 @@ size_t	count_check_nl(char const *buffer, t_gnl_data *data)
 	return (NL_NOT_FOUND);
 }
 
-void	*cleanup(char **s_buf, t_tmpbuf *tmp, t_gnl_data *data)
+void	*cleanup(char **s_buf, t_tmp *tmp, t_gnl_data *data)
 {
 	if (*s_buf)
 		free(*s_buf);
@@ -63,7 +63,7 @@ void	*cleanup(char **s_buf, t_tmpbuf *tmp, t_gnl_data *data)
 	return (NULL);
 }
 
-size_t	init_data(char **s_buf, t_tmpbuf *tmp, t_gnl_data *data)
+int	init_data(char **s_buf, t_tmp *tmp, t_gnl_data *data)
 {
 	if (!*s_buf)
 	{
@@ -82,7 +82,7 @@ size_t	init_data(char **s_buf, t_tmpbuf *tmp, t_gnl_data *data)
 	return (SUCCESS);
 }
 
-size_t	check_alloc(t_tmpbuf *tmp, size_t len)
+int	check_alloc(t_tmp *tmp, size_t len)
 {
 	void	*new_buf;
 	size_t	new_capacity;
