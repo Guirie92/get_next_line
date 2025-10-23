@@ -6,7 +6,7 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/18 07:45:28 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/23 15:19:51 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/23 22:04:39 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,10 @@ typedef struct s_gnl_data
 }	t_gnl_data;
 
 void	*ft_memmove(void *dest, const void *src, size_t n);
-//size_t	check_gnl_init_data(t_tmpbuf **s_gnl, size_t *len);
-void	cpy_next_line(const char *buffer, t_gnl_data *data);
-size_t	count_check_next_line(const char *buffer, t_gnl_data *data);
-
+size_t	count_check_nl(const char *buffer, t_gnl_data *data);
 void	*cleanup(char **s_buf, t_tmpbuf *tmp, t_gnl_data *data);
 size_t	init_data(char **buf, t_tmpbuf *tmp, t_gnl_data *data);
+size_t	check_alloc(t_tmpbuf *tmp, size_t len);
 
 char	*get_next_line(int fd);
 

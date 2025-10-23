@@ -6,78 +6,11 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 11:45:02 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/23 15:19:35 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/23 22:04:11 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-// void	*ft_memcpy(void *dest, const void *src, size_t n)
-// {
-// 	const unsigned char	*s;
-// 	unsigned char		*d;
-
-// 	if (n == 0 || (!dest && !src))
-// 		return (dest);
-// 	s = (const unsigned char *)src;
-// 	d = (unsigned char *)dest;
-// 	while (n--)
-// 		*d++ = *s++;
-// 	return (dest);
-// }
-
-// void	*ft_calloc(size_t nmemb, size_t size)
-// {
-// 	unsigned char	*p;
-// 	void			*ptr;
-// 	size_t			n;
-
-// 	if (nmemb == 0 || size == 0)
-// 		return (malloc(0));
-// 	if (nmemb > SIZE_MAX / size)
-// 		return (NULL);
-// 	ptr = malloc(nmemb * size);
-// 	if (!ptr)
-// 		return (NULL);
-// 	n = nmemb * size;
-// 	p = (unsigned char *)ptr;
-// 	while (n--)
-// 		*(p++) = 0;
-// 	return (ptr);
-// }
-
-// size_t	check_gnl_init_data(t_tmpbuf **s_gnl, size_t *len)
-// {
-// 	(*len) = 0;
-// 	if (*s_gnl)
-// 		return (SUCCESS);
-// 	(*s_gnl) = malloc(sizeof(t_tmpbuf));
-// 	if (!s_gnl)
-// 		return (MEM_FAIL);
-// 	(*s_gnl)->buf = NULL;
-// 	(*s_gnl)->idx = 0;
-// 	(*s_gnl)->len = 0;
-// 	(*s_gnl)->capacity = ALLOC_MIN;
-// 	return (SUCCESS);
-// }
-
-// void	*ft_memcpy(void *dest, const void *src, size_t n)
-// {
-// 	const unsigned char	*s;
-// 	unsigned char		*d;
-
-// 	if (n == 0 || (!dest && !src))
-// 		return (dest);
-// 	s = (const unsigned char *)src;
-// 	d = (unsigned char *)dest;
-// 	int i = 0;
-// 	while (n--)
-// 	{
-// 		d[i] = s[i];
-// 		i++;
-// 	}
-// 	return (dest);
-// }
 
 void	*ft_memmove(void *dest, const void *src, size_t n)
 {
@@ -103,46 +36,7 @@ void	*ft_memmove(void *dest, const void *src, size_t n)
 	return (dest);
 }
 
-// void	*ft_memmove(void *dest, const void *src, size_t n)
-// {
-// 	const unsigned char	*s;
-// 	unsigned char		*d;
-// 	size_t				i;
-
-// 	s = (const unsigned char *)src;
-// 	d = (unsigned char *)dest;
-// 	if (!s || !d)
-// 		return (NULL);
-// 	if (s == d || n == 0)
-// 		return (dest);
-// 	if (s > d)
-// 	{
-// 		i = 0;
-// 		while (n--)
-// 		{
-// 			d[i] = s[i];
-// 			i++;
-// 		}
-// 	}
-// 		//return (ft_memcpy(dest, src, n));
-// 	else
-// 	{
-// 		// d += n - 1;
-// 		// s += n - 1;
-// 		i = n - 1;
-// 		while (n--)
-// 		{
-// 			d[i] = s[i];
-// 			//printf("addr d: %p  |  addr s: %p\n", &d[i], &s[i]);
-// 			//fflush(stdout);
-// 			i--;
-// 		}
-// 			//*d-- = *s--;
-// 	} // addr 0x4a8e04e
-// 	return (dest);
-// }
-
-size_t	count_check_next_line(char const *buffer, t_gnl_data *data)
+size_t	count_check_nl(char const *buffer, t_gnl_data *data)
 {
 	while (*buffer)
 	{
@@ -185,5 +79,34 @@ size_t	init_data(char **buf, t_tmpbuf *tmp, t_gnl_data *data)
 	tmp->idx = 0;
 	tmp->buf = NULL;
 	tmp->capacity = 0;
+	return (SUCCESS);
+}
+
+size_t	check_alloc(t_tmpbuf *tmp, size_t len)
+{
+	void	*new_buf;
+	size_t	new_capacity;
+
+	if (tmp->capacity >= len + BUFFER_SIZE)
+		return (SUCCESS);
+	new_capacity = tmp->capacity;
+	if (new_capacity == 0)
+		new_capacity = ALLOC_MIN;
+	else if (new_capacity > ALLOC_MUL_CAP)
+		new_capacity += ALLOC_ADD_SIZE;
+	else
+		new_capacity *= 2;
+	if (new_capacity < len + BUFFER_SIZE)
+		new_capacity = len + BUFFER_SIZE;
+	new_buf = malloc(new_capacity + 1);
+	if (!new_buf)
+		return (MEM_FAIL);
+	if (tmp->buf)
+	{
+		ft_memmove(new_buf, (void *)tmp->buf, tmp->idx);
+		free(tmp->buf);
+	}
+	tmp->buf = (char *)new_buf;
+	tmp->capacity = new_capacity;
 	return (SUCCESS);
 }
