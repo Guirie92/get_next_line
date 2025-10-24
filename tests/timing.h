@@ -6,7 +6,7 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 11:18:59 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/24 17:34:35 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/24 22:33:01 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,29 +88,29 @@ static inline double timing_elapsed_us(const t_timing *t)
 #define TIMING_LOG(name, fmt, ...) TIMING_LOG_MS((name), (fmt), ##__VA_ARGS__)
 
 /* Milliseconds: call timing_elapsed_ms once inline */
-#define TIMING_LOG_MS(name, fmt, ...)													\
-    do {																				\
-        TIMING_PRINTF((fmt " (%.3f ms)\n"), ##__VA_ARGS__, timing_elapsed_ms(&(name)));	\
+#define TIMING_LOG_MS(name, fmt, ...)                                                   \
+    do {                                                                                \
+        TIMING_PRINTF((fmt " (%.3f ms)\n"), ##__VA_ARGS__, timing_elapsed_ms(&(name))); \
     } while (0)
 
 /* Seconds */
-#define TIMING_LOG_SEC(name, fmt, ...)													\
-    do {																				\
-        TIMING_PRINTF((fmt " (%.2f s)\n"), ##__VA_ARGS__, timing_elapsed_sec(&(name)));	\
+#define TIMING_LOG_SEC(name, fmt, ...)                                                  \
+    do {                                                                                \
+        TIMING_PRINTF((fmt " (%.2f s)\n"), ##__VA_ARGS__, timing_elapsed_sec(&(name))); \
     } while (0)
 
 /* Seconds & milliseconds */
-#define TIMING_LOG_SEC_MS(name, fmt, ...)												\
-    do {																				\
-        TIMING_PRINTF((fmt " (%.2f s) (%.3f ms)\n"), ##__VA_ARGS__,						\
-        timing_elapsed_sec(&(name)), timing_elapsed_ms(&(name)));						\
+#define TIMING_LOG_SEC_MS(name, fmt, ...)                                               \
+    do {                                                                                \
+        TIMING_PRINTF((fmt " (%.2f s) (%.3f ms)\n"), ##__VA_ARGS__,                     \
+        timing_elapsed_sec(&(name)), timing_elapsed_ms(&(name)));                       \
     } while (0)
 
 /* Nanoseconds (approx, from elapsed seconds) */
-#define TIMING_LOG_NS(name, fmt, ...)													\
-    do {																				\
-        long long _tim_ns_val = (long long)(timing_elapsed_sec(&(name)) * 1e9);			\
-        TIMING_PRINTF((fmt " (%lld ns)\n"), ##__VA_ARGS__, _tim_ns_val);				\
+#define TIMING_LOG_NS(name, fmt, ...)                                                   \
+    do {                                                                                \
+        long long _tim_ns_val = (long long)(timing_elapsed_sec(&(name)) * 1e9);         \
+        TIMING_PRINTF((fmt " (%lld ns)\n"), ##__VA_ARGS__, _tim_ns_val);                \
     } while (0)
 
 	
