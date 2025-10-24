@@ -6,11 +6,11 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 11:45:02 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/24 00:12:53 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/24 11:05:14 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 void	*ft_memmove(void *dest, const void *src, size_t n)
 {
