@@ -38,3 +38,8 @@ cc -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c -D BUFFER_SIZE=42
 Works with any `BUFFER_SIZE` > 0.
 
 Handles multiple file descriptors simultaneously.
+
+## Contact
+
+If you have any questions, suggestions, or comments, feel free to contact me:
+- Email: guillekm92@gmail.com
