@@ -6,16 +6,16 @@
 /*   By: guillsan <guillsan@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/17 20:15:10 by guillsan          #+#    #+#             */
-/*   Updated: 2025/10/24 17:30:00 by guillsan         ###   ########.fr       */
+/*   Updated: 2025/10/27 10:31:22 by guillsan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-int	process_reminder(char *s_buf, t_tmp *tmp, t_gnl_data *data);
-int	process_loop(char **s_buf, t_tmp *tmp, t_gnl_data *data, int fd);
-int	process_line(char **s_buf, t_tmp *tmp, t_gnl_data *data);
-int	process_final_line(char **s_buf, t_tmp *tmp, t_gnl_data *data);
+static int	process_reminder(char *s_buf, t_tmp *tmp, t_gnl_data *data);
+static int	process_loop(char **s_buf, t_tmp *tmp, t_gnl_data *data, int fd);
+static int	process_line(char **s_buf, t_tmp *tmp, t_gnl_data *data);
+static int	process_final_line(char **s_buf, t_tmp *tmp, t_gnl_data *data);
 
 char	*get_next_line(int fd)
 {
@@ -43,7 +43,7 @@ char	*get_next_line(int fd)
 	return (cleanup(&s_buf[fd], &tmp, &data));
 }
 
-int	process_reminder(char *s_buf, t_tmp *tmp, t_gnl_data *data)
+static int	process_reminder(char *s_buf, t_tmp *tmp, t_gnl_data *data)
 {
 	if (!*s_buf)
 		return (NL_NOT_FOUND);
@@ -66,7 +66,7 @@ int	process_reminder(char *s_buf, t_tmp *tmp, t_gnl_data *data)
 	return (NL_NOT_FOUND);
 }
 
-int	process_loop(char **s_buf, t_tmp *tmp, t_gnl_data *data, int fd)
+static int	process_loop(char **s_buf, t_tmp *tmp, t_gnl_data *data, int fd)
 {
 	while (data->bytes_read > 0)
 	{
@@ -94,7 +94,7 @@ int	process_loop(char **s_buf, t_tmp *tmp, t_gnl_data *data, int fd)
 	return (NL_NOT_FOUND);
 }
 
-int	process_line(char **s_buf, t_tmp *tmp, t_gnl_data *data)
+static int	process_line(char **s_buf, t_tmp *tmp, t_gnl_data *data)
 {
 	if (check_alloc(tmp, data->len) == MEM_FAIL)
 		return (MEM_FAIL);
@@ -112,7 +112,7 @@ int	process_line(char **s_buf, t_tmp *tmp, t_gnl_data *data)
 	return (NL_FOUND);
 }
 
-int	process_final_line(char **s_buf, t_tmp *tmp, t_gnl_data *data)
+static int	process_final_line(char **s_buf, t_tmp *tmp, t_gnl_data *data)
 {
 	data->line = malloc((data->len + 1) * sizeof(char));
 	if (!(data->line))
