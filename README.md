@@ -11,6 +11,18 @@ The get_next_line project aims to recreate a line-reading utility similar to the
 - File descriptors and the `read()` system call.
 - Dynamic memory management and string manipulation in C.
 
+Requirements:
+
+- get_next_line.c, get_next_line_utils.c, and get_next_line.h 
+(and the bonus counterparts)
+
+Constraints:
+
+- 5 functions per file
+- 25 lines per function
+- Norm compliance
+- Single static variable (bonus part)
+
 ## Methodology and Optimization
 
 Typical `get_next_line()` implementations dynamically allocate and reallocate heap memory frequently.
