@@ -1,6 +1,6 @@
 # get_next_line
 
-A project from 42 School that implements a function capable of reading from a file descriptor and returning one line at a time, without losing data between calls, regardless of the buffer size used.
+A project that implements a function capable of reading from a file descriptor and returning one line at a time, without losing data between calls, regardless of the buffer size used.
 
 
 ## Summary
@@ -13,24 +13,25 @@ The get_next_line project aims to recreate a line-reading utility similar to the
 
 Requirements:
 
-- get_next_line.c, get_next_line_utils.c, and get_next_line.h 
+- get_next_line.c, get_next_line_utils.c, and get_next_line.h
+
 (and the bonus counterparts)
 
 Constraints:
 
 - 5 functions per file
 - 25 lines per function
-- Norm compliance
 - Single static variable (bonus part)
+- Norm compliance
 
 ## Methodology and Optimization
 
 Typical `get_next_line()` implementations dynamically allocate and reallocate heap memory frequently.
 This project takes a different approach by reducing heap allocations. Instead of continuously reallocating and copying buffers, this version:
 
-- Maintains a temporal buffer that grows in powers of two as needed (with a cap).
-- Minimizes heap operations by only reallocating when the buffer capacity is exceeded.
-- Achieves significantly fewer heap allocations, improving performance (less malloc/free overhead).
+- Maintains a temporal buffer that grows in powers of two as needed (with a cap)
+- Minimizes heap operations by only reallocating when the buffer capacity is exceeded
+- Achieves significantly fewer heap allocations, improving performance (less malloc/free overhead)
 
 Here's an extreme example with the two implementations: 140,000+ allocations → 64 allocations with the power-of-two growth strategy.
 
