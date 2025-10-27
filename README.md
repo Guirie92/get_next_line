@@ -11,10 +11,6 @@ The get_next_line project aims to recreate a line-reading utility similar to the
 - File descriptors and the `read()` system call.
 - Dynamic memory management and string manipulation in C.
 
-
-
-This implementation fully adheres to the 42 subject requirements, including support for multiple file descriptors and variable buffer sizes.
-
 ## Methodology and Optimization
 
 Typical `get_next_line()` implementations dynamically allocate and reallocate heap memory frequently.
@@ -22,7 +18,7 @@ This project takes a different approach by reducing heap allocations. Instead of
 
 - Maintains a temporal buffer that grows in powers of two as needed (with a cap).
 - Minimizes heap operations by only reallocating when the buffer capacity is exceeded.
-- Achieves significantly fewer heap allocations, improving performance (less `malloc()`/`free()` overhead).
+- Achieves significantly fewer heap allocations, improving performance (less malloc/free overhead).
 
 Here's an extreme example with the two implementations: 140,000+ allocations → 64 allocations with the power-of-two growth strategy.
 
@@ -40,4 +36,5 @@ cc -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c -D BUFFER_SIZE=42
 ## Notes
 
 Works with any `BUFFER_SIZE` > 0.
+
 Handles multiple file descriptors simultaneously.
